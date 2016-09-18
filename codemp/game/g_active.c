@@ -824,6 +824,22 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			ent->health--;
 		}
 
+                // nettux do regen
+                if (client->nettuxSinceDamage > 0) {
+                    client->nettuxSinceDamage--;
+                } else {
+ 	            if (client->nettuxDamageInterval > 0) {
+                        client->nettuxDamageInterval--;
+                    } else {
+                        // nettux TODO: add && g_nettuxRegen == 1
+    		        if ( g_nettuxRegen.value == 1 && ent->health < client->ps.stats[STAT_MAX_HEALTH] ) {
+                            ent->health = ent->health += g_nettuxRegenAmount.value;
+                            client->nettuxDamageInterval = g_nettuxRegenInterval.value;
+                        }
+
+                    }
+                }
+
 		// count down armor when over max
 		if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
 			client->ps.stats[STAT_ARMOR]--;
@@ -1615,7 +1631,8 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 	{//normal taunt always allowed
 		if ( level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL )
 		{//no taunts unless in Duel
-			return;
+                        // nettux always allow all taunts
+			//return;
 		}
 	}
 
@@ -3569,6 +3586,14 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 	{
 		ent->client->pers.cmd = *ucmd;
 	}
+
+
+
+
+
+
+
+
 
 /* 	This was moved to clientthink_real, but since its sort of a risky change i left it here for
     now as a more concrete reference - BSD

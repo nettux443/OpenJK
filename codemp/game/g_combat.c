@@ -2896,9 +2896,31 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 	{ //powerduel checks
 		if (self->client->sess.duelTeam == DUELTEAM_LONE)
 		{ //automatically means a win as there is only one
-			G_AddPowerDuelScore(DUELTEAM_DOUBLE, 1);
-			G_AddPowerDuelLoserScore(DUELTEAM_LONE, 1);
-			g_endPDuel = qtrue;
+			// nettux check for other lone duelists before we end the duel
+                        gentity_t *check2;
+                        qboolean sheLives = qfalse;
+
+                        for ( i=0; i<MAX_CLIENTS; i++ )
+                        {
+                                check2 = &g_entities[i];
+                                if (check2->inuse && check2->client && check2->s.number != self->s.number &&
+                                        check2->client->pers.connected == CON_CONNECTED && !check2->client->iAmALoser &&
+                                        check2->client->ps.stats[STAT_HEALTH] > 0 &&
+                                        check2->client->sess.sessionTeam != TEAM_SPECTATOR &&
+                                        check2->client->sess.duelTeam == DUELTEAM_LONE)
+                                { // nettux still an active living lone duelist so it's not over yet.
+                                        sheLives = qtrue;
+                                        break;
+                                }
+                        }
+
+                        if (!sheLives)
+                        { //they're all dead, give the double duelists the win.
+				G_AddPowerDuelScore(DUELTEAM_DOUBLE, 1);
+				G_AddPowerDuelLoserScore(DUELTEAM_LONE, 1);
+				g_endPDuel = qtrue;
+                        }
+
 		}
 		else if (self->client->sess.duelTeam == DUELTEAM_DOUBLE)
 		{
@@ -5411,6 +5433,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
+
+                        // nettux set the has taken damage flag
+                        targ->client->nettuxSinceDamage = g_nettuxRegenTimer.value;
 		}
 
 		if ( !(dflags & DAMAGE_NO_PROTECTION) )

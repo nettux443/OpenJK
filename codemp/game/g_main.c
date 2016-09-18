@@ -75,6 +75,19 @@ All but the first will have the FL_TEAMSLAVE flag set and teammaster field set
 All but the last will have the teamchain field set to the next one
 ================
 */
+
+char* nettux_concat(char *s1, char *s2)
+{
+    char *result = malloc(strlen(s1)+strlen(s2)+1);//+1 for the zero-terminator
+    //in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
+
+
+
 void G_FindTeams( void ) {
 	gentity_t	*e, *e2;
 	int		i, j;
@@ -331,7 +344,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	if (level.gametype == GT_POWERDUEL)
 	{
-		trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("-1|-1|-1") );
+                // nettux duelistnum perhaps not important??
+                // nettux prefill 12 players to support up to 6v6 or 11v1
+		trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("-1|-1|-1|-1|-1|-1|-1|-1|-1|-1|-1|-1|-1|-1") );
 	}
 	else
 	{
@@ -658,10 +673,17 @@ void AddPowerDuelPlayers( void )
 	int			doubles = 0;
 	int			nonspecLoners = 0;
 	int			nonspecDoubles = 0;
+        int			activeDuelists = 0;
+	int			totalLoners = 0;
+	int			totalDoubles = 0;
+        int			totalDuelists = 0;
 	gclient_t	*client;
 	gclient_t	*nextInLine;
 
-	if ( level.numPlayingClients >= 3 )
+	//if ( level.numPlayingClients >= 8 )
+        // nettux maybe this will work. attempted dynamic player limits
+        // nettux hard player limit of 8
+	if ( level.numPlayingClients >= 12)
 	{
 		return;
 	}
@@ -669,16 +691,57 @@ void AddPowerDuelPlayers( void )
 	nextInLine = NULL;
 
 	G_PowerDuelCount(&nonspecLoners, &nonspecDoubles, qfalse);
-	if (nonspecLoners >= 1 && nonspecDoubles >= 2)
+        // nettux hard limit of 12 active players combined teams
+	if (nonspecLoners >= 11 && nonspecDoubles >= 11)
 	{ //we have enough people, stop
 		return;
 	}
+        // count including spectators (dead players)
+	G_PowerDuelCount(&totalLoners, &totalDoubles, qtrue);
+
+        totalDuelists = totalLoners + totalDoubles;
+
+        activeDuelists = nonspecLoners + nonspecDoubles;
+
+        // second attempt at dynamic player cap
+
+	if ( level.numPlayingClients >= totalDuelists)
+	{
+		return;
+	}
+
+        if (activeDuelists >= totalDuelists)
+	{
+		return;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	//Could be written faster, but it's not enough to care I suppose.
 	G_PowerDuelCount(&loners, &doubles, qtrue);
 
-	if (loners < 1 || doubles < 2)
+	if (loners < 1 || doubles < 1)
 	{ //don't bother trying to spawn anyone yet if the balance is not even set up between spectators
+                
 		return;
 	}
 
@@ -699,11 +762,11 @@ void AddPowerDuelPlayers( void )
 		{
 			continue;
 		}
-		if (client->sess.duelTeam == DUELTEAM_LONE && loners >= 1)
+		if (client->sess.duelTeam == DUELTEAM_LONE && loners >= 11)
 		{
 			continue;
 		}
-		if (client->sess.duelTeam == DUELTEAM_DOUBLE && doubles >= 2)
+		if (client->sess.duelTeam == DUELTEAM_DOUBLE && doubles >= 11)
 		{
 			continue;
 		}
@@ -767,7 +830,7 @@ void RemovePowerDuelLosers(void)
 	i = 0;
 	while (i < remNum)
 	{ //set them all to spectator
-		SetTeam( &g_entities[ remClients[i] ], "s" );
+		SetTeam( &g_entities[ remClients[i] ], "f" );
 		i++;
 	}
 
@@ -1001,8 +1064,48 @@ int gQueueScoreMessageTime = 0;
 //A new duel started so respawn everyone and make sure their stats are reset
 qboolean G_CanResetDuelists(void)
 {
+        // nettux appears to be a check function leading to duel reset
 	int i;
 	gentity_t *ent;
+
+
+    if (level.gametype == GT_POWERDUEL) {
+        // nettux check that one team is empty before reset
+        gentity_t *check;
+        qboolean doubleLives = qfalse;
+        qboolean lonerLives = qfalse;
+        for ( i=0; i<MAX_CLIENTS; i++ )
+        {
+            check = &g_entities[i];
+            if (check->inuse && check->client &&
+                check->client->pers.connected == CON_CONNECTED && !check->client->iAmALoser &&
+                check->client->ps.stats[STAT_HEALTH] > 0 &&
+                check->client->sess.sessionTeam != TEAM_SPECTATOR) {
+                if (check->client->sess.duelTeam == DUELTEAM_DOUBLE) { //still an active living paired duelist so it's not over yet.
+                    doubleLives = qtrue;
+                    break;
+                }
+            }
+        }
+        for ( i=0; i<MAX_CLIENTS; i++ )
+        {
+            check = &g_entities[i];
+            if (check->inuse && check->client &&
+                check->client->pers.connected == CON_CONNECTED && !check->client->iAmALoser &&
+                check->client->ps.stats[STAT_HEALTH] > 0 &&
+                check->client->sess.sessionTeam != TEAM_SPECTATOR) {
+                if (check->client->sess.duelTeam == DUELTEAM_LONE) { //still an active living lone duelist so it's not over yet.
+                    lonerLives = qtrue;
+                    break;
+                }
+            }
+        }
+
+        if (doubleLives || lonerLives) {
+            return qfalse;
+        }
+    }
+
 
 	i = 0;
 	while (i < 3)
@@ -1736,9 +1839,18 @@ void CheckIntermissionExit( void ) {
 
 			if (level.gametype == GT_POWERDUEL)
 			{
-				if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3)
+				if (level.numPlayingClients >= 2 && level.numNonSpectatorClients >= 2)
 				{
-					trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2] ) );
+
+                                // nettux Power Duel variable player number
+                                char *duelstring;
+                                duelstring = va("%i", level.sortedClients[0]);
+                                for (int i = 1; i < level.numPlayingClients ; i++ ) {
+                                    duelstring = va(nettux_concat(duelstring , "|%i"), level.sortedClients[i]);
+                                }
+                                trap->SetConfigstring ( CS_CLIENT_DUELISTS, duelstring );
+                                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, "-1" );
+
 					trap->SetConfigstring ( CS_CLIENT_DUELWINNER, "-1" );
 				}
 			}
@@ -1767,9 +1879,15 @@ void CheckIntermissionExit( void ) {
 			RemovePowerDuelLosers();
 			AddPowerDuelPlayers();
 
-			if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3)
+			if (level.numPlayingClients >= 2 && level.numNonSpectatorClients >= 2)
 			{
-				trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2] ) );
+                                // nettux Power Duel variable player number
+                                char *duelstring;
+                                duelstring = va("%i", level.sortedClients[0]);
+                                for (int i = 1; i < level.numPlayingClients ; i++ ) {
+                                    duelstring = va(nettux_concat(duelstring , "|%i"), level.sortedClients[i]);
+                                }
+				trap->SetConfigstring ( CS_CLIENT_DUELISTS, duelstring );
 				trap->SetConfigstring ( CS_CLIENT_DUELWINNER, "-1" );
 			}
 		}
@@ -2007,7 +2125,7 @@ void CheckExitRules( void ) {
 		}
 	}
 
-	if (level.gametype == GT_POWERDUEL && level.numPlayingClients >= 3)
+	if (level.gametype == GT_POWERDUEL && level.numPlayingClients >= 2)
 	{
 		if (g_endPDuel)
 		{
@@ -2015,109 +2133,6 @@ void CheckExitRules( void ) {
 			LogExit("Powerduel ended.");
 		}
 
-		//yeah, this stuff was completely insane.
-		/*
-		int duelists[3];
-		duelists[0] = level.sortedClients[0];
-		duelists[1] = level.sortedClients[1];
-		duelists[2] = level.sortedClients[2];
-
-		if (duelists[0] != -1 &&
-			duelists[1] != -1 &&
-			duelists[2] != -1)
-		{
-			if (!g_entities[duelists[0]].inuse ||
-				!g_entities[duelists[0]].client ||
-				g_entities[duelists[0]].client->ps.stats[STAT_HEALTH] <= 0 ||
-				g_entities[duelists[0]].client->sess.sessionTeam != TEAM_FREE)
-			{ //The lone duelist lost, give the other two wins (if applicable) and him a loss
-				if (g_entities[duelists[0]].inuse &&
-					g_entities[duelists[0]].client)
-				{
-					g_entities[duelists[0]].client->sess.losses++;
-					ClientUserinfoChanged(duelists[0]);
-				}
-				if (g_entities[duelists[1]].inuse &&
-					g_entities[duelists[1]].client)
-				{
-					if (g_entities[duelists[1]].client->ps.stats[STAT_HEALTH] > 0 &&
-						g_entities[duelists[1]].client->sess.sessionTeam == TEAM_FREE)
-					{
-						g_entities[duelists[1]].client->sess.wins++;
-					}
-					else
-					{
-						g_entities[duelists[1]].client->sess.losses++;
-					}
-					ClientUserinfoChanged(duelists[1]);
-				}
-				if (g_entities[duelists[2]].inuse &&
-					g_entities[duelists[2]].client)
-				{
-					if (g_entities[duelists[2]].client->ps.stats[STAT_HEALTH] > 0 &&
-						g_entities[duelists[2]].client->sess.sessionTeam == TEAM_FREE)
-					{
-						g_entities[duelists[2]].client->sess.wins++;
-					}
-					else
-					{
-						g_entities[duelists[2]].client->sess.losses++;
-					}
-					ClientUserinfoChanged(duelists[2]);
-				}
-
-				//Will want to parse indecies for two out at some point probably
-				trap->SetConfigstring ( CS_CLIENT_DUELWINNER, va("%i", duelists[1] ) );
-
-				if (d_powerDuelPrint.integer)
-				{
-					Com_Printf("POWERDUEL WIN CONDITION: Coupled duelists won (1)\n");
-				}
-				LogExit( "Coupled duelists won." );
-				gDuelExit = qfalse;
-			}
-			else if ((!g_entities[duelists[1]].inuse ||
-				!g_entities[duelists[1]].client ||
-				g_entities[duelists[1]].client->sess.sessionTeam != TEAM_FREE ||
-				g_entities[duelists[1]].client->ps.stats[STAT_HEALTH] <= 0) &&
-				(!g_entities[duelists[2]].inuse ||
-				!g_entities[duelists[2]].client ||
-				g_entities[duelists[2]].client->sess.sessionTeam != TEAM_FREE ||
-				g_entities[duelists[2]].client->ps.stats[STAT_HEALTH] <= 0))
-			{ //the coupled duelists lost, give the lone duelist a win (if applicable) and the couple both losses
-				if (g_entities[duelists[1]].inuse &&
-					g_entities[duelists[1]].client)
-				{
-					g_entities[duelists[1]].client->sess.losses++;
-					ClientUserinfoChanged(duelists[1]);
-				}
-				if (g_entities[duelists[2]].inuse &&
-					g_entities[duelists[2]].client)
-				{
-					g_entities[duelists[2]].client->sess.losses++;
-					ClientUserinfoChanged(duelists[2]);
-				}
-
-				if (g_entities[duelists[0]].inuse &&
-					g_entities[duelists[0]].client &&
-					g_entities[duelists[0]].client->ps.stats[STAT_HEALTH] > 0 &&
-					g_entities[duelists[0]].client->sess.sessionTeam == TEAM_FREE)
-				{
-					g_entities[duelists[0]].client->sess.wins++;
-					ClientUserinfoChanged(duelists[0]);
-				}
-
-				trap->SetConfigstring ( CS_CLIENT_DUELWINNER, va("%i", duelists[0] ) );
-
-				if (d_powerDuelPrint.integer)
-				{
-					Com_Printf("POWERDUEL WIN CONDITION: Lone duelist won (1)\n");
-				}
-				LogExit( "Lone duelist won." );
-				gDuelExit = qfalse;
-			}
-		}
-		*/
 		return;
 	}
 
@@ -2267,9 +2282,16 @@ void CheckTournament( void ) {
 
 	if (level.gametype == GT_POWERDUEL)
 	{
-		if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3)
+		if (level.numPlayingClients >= 2 && level.numNonSpectatorClients >= 2)
 		{
-			trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2] ) );
+                                // nettux Power Duel variable player number
+                                char *duelstring;
+                                duelstring = va("%i", level.sortedClients[0]);
+                                for (int i = 1; i < level.numPlayingClients ; i++ ) {
+                                    duelstring = va(nettux_concat(duelstring , "|%i"), level.sortedClients[i]);
+                                }
+                                trap->SetConfigstring ( CS_CLIENT_DUELISTS, duelstring );
+                                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, "-1" );
 		}
 	}
 	else
@@ -2364,21 +2386,21 @@ void CheckTournament( void ) {
 			g_dontFrickinCheck = qfalse;
 		}
 
-		if (level.numPlayingClients > 3)
+		if (level.numPlayingClients > 12)
 		{ //umm..yes..lets take care of that then.
 			int lone = 0, dbl = 0;
 
 			G_PowerDuelCount(&lone, &dbl, qfalse);
-			if (lone > 1)
+			if (lone > 11)
 			{
 				G_RemoveDuelist(DUELTEAM_LONE);
 			}
-			else if (dbl > 2)
+			else if (dbl > 11)
 			{
 				G_RemoveDuelist(DUELTEAM_DOUBLE);
 			}
 		}
-		else if (level.numPlayingClients < 3)
+		else if (level.numPlayingClients < 2)
 		{ //hmm, someone disconnected or something and we need em
 			int lone = 0, dbl = 0;
 
@@ -2394,21 +2416,32 @@ void CheckTournament( void ) {
 		}
 
 		// pull in a spectator if needed
-		if (level.numPlayingClients < 3 && !g_dontFrickinCheck)
+                // nettux need to figure out how to stop pulling in in games with < 8 total playes
+		if (level.numPlayingClients < 12 && !g_dontFrickinCheck)
 		{
 			AddPowerDuelPlayers();
-
-			if (level.numPlayingClients >= 3 &&
+			if (level.numPlayingClients >= 2 &&
 				G_CanResetDuelists())
+			if (level.numPlayingClients >= 2)
 			{
 				gentity_t *te = G_TempEntity(vec3_origin, EV_GLOBAL_DUEL);
 				te->r.svFlags |= SVF_BROADCAST;
 				//this is really pretty nasty, but..
 				te->s.otherEntityNum = level.sortedClients[0];
 				te->s.otherEntityNum2 = level.sortedClients[1];
-				te->s.groundEntityNum = level.sortedClients[2];
+                                if (level.numPlayingClients >= 3) {
+				    te->s.groundEntityNum = level.sortedClients[2];
+                                }
 
-				trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2] ) );
+                                // nettux Power Duel variable player number
+                                char *duelstring;
+                                duelstring = va("%i", level.sortedClients[0]);
+                                for (int i = 1; i < level.numPlayingClients ; i++ ) {
+                                    duelstring = va(nettux_concat(duelstring , "|%i"), level.sortedClients[i]);
+                                }
+                                trap->SetConfigstring ( CS_CLIENT_DUELISTS, duelstring );
+                                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, "-1" );
+
 				G_ResetDuelists();
 
 				g_dontFrickinCheck = qtrue;
@@ -2433,18 +2466,29 @@ void CheckTournament( void ) {
 				}
 			}
 
-			if (level.numPlayingClients >= 3 && level.numNonSpectatorClients >= 3)
+			if (level.numPlayingClients >= 2 && level.numNonSpectatorClients >= 2)
 			{ //pulled in a needed person
 				if (G_CanResetDuelists())
 				{
 					gentity_t *te = G_TempEntity(vec3_origin, EV_GLOBAL_DUEL);
 					te->r.svFlags |= SVF_BROADCAST;
 					//this is really pretty nasty, but..
+                                        // nettux WHAT DOES THIS DO??
 					te->s.otherEntityNum = level.sortedClients[0];
 					te->s.otherEntityNum2 = level.sortedClients[1];
-					te->s.groundEntityNum = level.sortedClients[2];
+                                	if (level.numPlayingClients >= 3) {
+					    te->s.groundEntityNum = level.sortedClients[2];
+	                                }
 
-					trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2] ) );
+                                // nettux Power Duel variable player number
+                                char *duelstring;
+                                duelstring = va("%i", level.sortedClients[0]);
+                                for (int i = 1; i < level.numPlayingClients ; i++ ) {
+                                    duelstring = va(nettux_concat(duelstring , "|%i"), level.sortedClients[i]);
+                                }
+                                trap->SetConfigstring ( CS_CLIENT_DUELISTS, duelstring );
+                                trap->SetConfigstring ( CS_CLIENT_DUELWINNER, "-1" );
+
 
 					if ( g_austrian.integer )
 					{

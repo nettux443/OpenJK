@@ -3105,8 +3105,14 @@ void ClientSpawn(gentity_t *ent) {
 	index = ent - g_entities;
 	client = ent->client;
 
+
 	//first we want the userinfo so we can see if we should update this client's saber -rww
 	trap->GetUserinfo( index, userinfo, sizeof( userinfo ) );
+
+
+        // nettux init regen vars
+        client->nettuxSinceDamage = 0;
+        client->nettuxDamageInterval = 0;
 
 	for ( i=0; i<MAX_SABERS; i++ )
 	{
@@ -3451,20 +3457,20 @@ void ClientSpawn(gentity_t *ent) {
 			client->ps.trueJedi = qfalse;
 			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+				//client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
 			}
 			if (!wDisable || !(wDisable & (1 << WP_BLASTER)))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BLASTER );
+				//client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BLASTER );
 			}
 			if (!wDisable || !(wDisable & (1 << WP_BOWCASTER)))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BOWCASTER );
+				//client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BOWCASTER );
 			}
 			client->ps.stats[STAT_WEAPONS] &= ~(1 << WP_SABER);
 			client->ps.stats[STAT_WEAPONS] |= (1 << WP_MELEE);
 			client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
-			client->ps.weapon = WP_BRYAR_PISTOL;
+			//client->ps.weapon = WP_BRYAR_PISTOL;
 		}
 	}
 	else
@@ -3492,11 +3498,11 @@ void ClientSpawn(gentity_t *ent) {
 		{
 			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+				//client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
 			}
 			else if (level.gametype == GT_JEDIMASTER)
 			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+				//client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
 			}
 		}
 
@@ -3512,7 +3518,7 @@ void ClientSpawn(gentity_t *ent) {
 		}
 		else if (client->ps.stats[STAT_WEAPONS] & (1 << WP_BRYAR_PISTOL))
 		{
-			client->ps.weapon = WP_BRYAR_PISTOL;
+			//client->ps.weapon = WP_BRYAR_PISTOL;
 		}
 		else
 		{
@@ -3685,13 +3691,14 @@ void ClientSpawn(gentity_t *ent) {
 		{
 			if ( duel_fraglimit.integer )
 			{
+                                // nettux both sides start with 100hp
+				ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 100;
 
-				ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] =
-					g_powerDuelStartHealth.integer - ((g_powerDuelStartHealth.integer - g_powerDuelEndHealth.integer) * (float)client->sess.wins / (float)duel_fraglimit.integer);
 			}
 			else
 			{
-				ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 150;
+                                // nettux both sides start with 100hp
+				ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] = 100;
 			}
 		}
 		else
@@ -3811,15 +3818,6 @@ void ClientSpawn(gentity_t *ent) {
 		client->enemyTeam = NPCTEAM_ENEMY;
 	}
 
-	/*
-	//scaling for the power duel opponent
-	if (level.gametype == GT_POWERDUEL &&
-		client->sess.duelTeam == DUELTEAM_LONE)
-	{
-		client->ps.iModelScale = 125;
-		VectorSet(ent->modelScale, 1.25f, 1.25f, 1.25f);
-	}
-	*/
 	//Disabled. At least for now. Not sure if I'll want to do it or not eventually.
 
 	// run a client frame to drop exactly to the floor,

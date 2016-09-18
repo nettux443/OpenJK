@@ -216,20 +216,22 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 				break;
 			case GT_POWERDUEL:
 				//sess->duelTeam = DUELTEAM_LONE; //default
+                                // nettux rebalance for even teams
 				{
 					int loners = 0;
 					int doubles = 0;
 
-					G_PowerDuelCount(&loners, &doubles, qtrue);
+                                        // nettux dont rebalance at all
+					//G_PowerDuelCount(&loners, &doubles, qtrue);
 
-					if (!doubles || loners > (doubles/2))
-					{
-						sess->duelTeam = DUELTEAM_DOUBLE;
-					}
-					else
-					{
-						sess->duelTeam = DUELTEAM_LONE;
-					}
+					//if (!doubles || loners > (doubles))
+					//{
+						//sess->duelTeam = DUELTEAM_DOUBLE;
+					//}
+					//else
+					//{
+						//sess->duelTeam = DUELTEAM_LONE;
+					//}
 				}
 				sess->sessionTeam = TEAM_SPECTATOR;
 				break;

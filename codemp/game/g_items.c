@@ -2819,6 +2819,10 @@ void FinishSpawningItem( gentity_t *ent ) {
 //	VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
 //	VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
 
+        // nettux Don't spawn any items ever (saber only for the win!)
+	G_FreeEntity(ent);
+	return;
+
 	if (level.gametype == GT_SIEGE)
 	{ //in siege remove all powerups
 		if (ent->item->giType == IT_POWERUP)

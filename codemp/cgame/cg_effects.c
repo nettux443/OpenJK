@@ -175,6 +175,19 @@ int CGDEBUG_SaberColor( int saberColor )
 		case SABER_PURPLE:
 			return 0x00ff00ff;
 			break;
+                // nettux saber colours
+		case SABER_TEAL:
+			return 0x0000aa80;
+			break;
+		case SABER_CYAN:
+			return 0x000080aa;
+			break;
+		case SABER_INDIGO:
+			return 0x008000ff;
+			break;
+		case SABER_MAGENTA:
+			return 0x00ff0080;
+			break;
 		default:
 			return saberColor;
 			break;

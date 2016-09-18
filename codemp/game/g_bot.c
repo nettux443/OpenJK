@@ -643,85 +643,6 @@ void G_CheckMinimumPlayers( void ) {
 		}
 	}
 
-	/*
-	if (level.gametype >= GT_TEAM) {
-		int humanplayers2, botplayers2;
-		if (minplayers >= sv_maxclients.integer / 2) {
-			minplayers = (sv_maxclients.integer / 2) -1;
-		}
-
-		humanplayers = G_CountHumanPlayers( TEAM_RED );
-		botplayers = G_CountBotPlayers(	TEAM_RED );
-		humanplayers2 = G_CountHumanPlayers( TEAM_BLUE );
-		botplayers2 = G_CountBotPlayers( TEAM_BLUE );
-		//
-		if ((humanplayers+botplayers+humanplayers2+botplayers) < minplayers)
-		{
-			if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
-			{
-				G_AddRandomBot( TEAM_RED );
-			}
-			else
-			{
-				G_AddRandomBot( TEAM_BLUE );
-			}
-		}
-		else if ((humanplayers+botplayers+humanplayers2+botplayers) > minplayers && botplayers)
-		{
-			if ((humanplayers+botplayers) < (humanplayers2+botplayers2))
-			{
-				G_RemoveRandomBot( TEAM_BLUE );
-			}
-			else
-			{
-				G_RemoveRandomBot( TEAM_RED );
-			}
-		}
-	}
-	else if (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
-		}
-		humanplayers = G_CountHumanPlayers( -1 );
-		botplayers = G_CountBotPlayers( -1 );
-		//
-		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( TEAM_FREE );
-		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			// try to remove spectators first
-			if (!G_RemoveRandomBot( TEAM_SPECTATOR )) {
-				// just remove the bot that is playing
-				G_RemoveRandomBot( -1 );
-			}
-		}
-	}
-	else if (level.gametype == GT_FFA) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
-		}
-		humanplayers = G_CountHumanPlayers( TEAM_FREE );
-		botplayers = G_CountBotPlayers( TEAM_FREE );
-		//
-		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( TEAM_FREE );
-		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			G_RemoveRandomBot( TEAM_FREE );
-		}
-	}
-	else if (level.gametype == GT_HOLOCRON || level.gametype == GT_JEDIMASTER) {
-		if (minplayers >= sv_maxclients.integer) {
-			minplayers = sv_maxclients.integer-1;
-		}
-		humanplayers = G_CountHumanPlayers( TEAM_FREE );
-		botplayers = G_CountBotPlayers( TEAM_FREE );
-		//
-		if (humanplayers + botplayers < minplayers) {
-			G_AddRandomBot( TEAM_FREE );
-		} else if (humanplayers + botplayers > minplayers && botplayers) {
-			G_RemoveRandomBot( TEAM_FREE );
-		}
-	}
-	*/
 }
 
 /*
@@ -1009,13 +930,21 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		bot->client->sess.duelTeam = 0;
 		G_PowerDuelCount(&loners, &doubles, qtrue);
 
-		if (!doubles || loners > (doubles/2))
-		{
-            bot->client->sess.duelTeam = DUELTEAM_DOUBLE;
-		}
-		else
-		{
-            bot->client->sess.duelTeam = DUELTEAM_LONE;
+                // nettux bots balance teams evenly
+                // nettux botTeam option here
+                if (g_nettuxPowerDuelBotTeam.value == 1) {
+	           bot->client->sess.duelTeam = DUELTEAM_LONE;
+                } else if (g_nettuxPowerDuelBotTeam.value == 2) {
+	            bot->client->sess.duelTeam = DUELTEAM_DOUBLE;
+                } else {
+			if (!doubles || loners > (doubles))
+			{
+	            bot->client->sess.duelTeam = DUELTEAM_DOUBLE;
+			}
+			else
+			{
+	           bot->client->sess.duelTeam = DUELTEAM_LONE;
+	    		}
 		}
 
 		bot->client->sess.sessionTeam = TEAM_SPECTATOR;

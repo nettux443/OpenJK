@@ -634,6 +634,15 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.blueSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/blue_line" );
 	cgs.media.purpleSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/purple_glow" );
 	cgs.media.purpleSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/purple_line" );
+        // nettux saber colours
+	cgs.media.tealSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/teal_glow" );
+	cgs.media.tealSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/teal_line" );
+	cgs.media.cyanSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/cyan_glow" );
+	cgs.media.cyanSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/cyan_line" );
+	cgs.media.indigoSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/indigo_glow" );
+	cgs.media.indigoSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/indigo_line" );
+	cgs.media.magentaSaberGlowShader		= trap->R_RegisterShader( "gfx/effects/sabers/magenta_glow" );
+	cgs.media.magentaSaberCoreShader		= trap->R_RegisterShader( "gfx/effects/sabers/magenta_line" );
 	cgs.media.saberBlurShader			= trap->R_RegisterShader( "gfx/effects/sabers/saberBlur" );
 	cgs.media.swordTrailShader			= trap->R_RegisterShader( "gfx/effects/sabers/swordTrail" );
 

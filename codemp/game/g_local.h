@@ -268,6 +268,8 @@ struct gentity_s {
 									// all game items are physicsObjects,
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
 	int			clipmask;			// brushes with this content value will be collided against
+
+
 									// when moving.  items and corpses do not collide against
 									// players, for instance
 
@@ -654,6 +656,10 @@ struct gclient_s {
 	int			airOutTime;
 
 	int			lastKillTime;		// for multiple kill rewards
+
+        int        nettuxHasDied;
+        int        nettuxSinceDamage;
+        int        nettuxDamageInterval;
 
 	qboolean	fireHeld;			// used for hook
 	gentity_t	*hook;				// grapple hook if out

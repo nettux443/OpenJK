@@ -2802,6 +2802,19 @@ int WPDEBUG_SaberColor( saber_colors_t saberColor )
 		case SABER_PURPLE:
 			return 0x00ff00ff;
 			break;
+                case SABER_TEAL:
+                        // nettux saber colours
+                        return 0x0000aa80;
+                        break;
+                case SABER_CYAN:
+                        return 0x000080aa;
+                        break;
+                case SABER_INDIGO:
+                        return 0x008000ff;
+                        break;
+                case SABER_MAGENTA:
+                        return 0x00ff0080;
+                        break;
 		default:
 			return 0x00ffffff;//white
 			break;

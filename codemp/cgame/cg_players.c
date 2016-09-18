@@ -5266,6 +5266,19 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 		case SABER_PURPLE:
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
+                // nettux saber colours (cores?)
+		case SABER_TEAL:
+			VectorSet( rgb, 0.2f, 1.0f, 1.0f );
+			break;
+		case SABER_CYAN:
+			VectorSet( rgb, 0.2f, 1.0f, 1.0f );
+			break;
+		case SABER_INDIGO:
+			VectorSet( rgb, 0.7f, .2f, 1.0f );
+			break;
+		case SABER_MAGENTA:
+			VectorSet( rgb, 1.0f, .2f, 0.7f );
+			break;
 		default:
 			break;
 	}
@@ -5401,6 +5414,23 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			glow = cgs.media.purpleSaberGlowShader;
 			blade = cgs.media.purpleSaberCoreShader;
 			break;
+                // nettux saber colours
+		case SABER_TEAL:
+			glow = cgs.media.tealSaberGlowShader;
+			blade = cgs.media.tealSaberCoreShader;
+			break;
+		case SABER_CYAN:
+			glow = cgs.media.cyanSaberGlowShader;
+			blade = cgs.media.cyanSaberCoreShader;
+                        break;
+		case SABER_INDIGO:
+			glow = cgs.media.indigoSaberGlowShader;
+			blade = cgs.media.indigoSaberCoreShader;
+                        break;
+		case SABER_MAGENTA:
+			glow = cgs.media.magentaSaberGlowShader;
+			blade = cgs.media.magentaSaberCoreShader;
+                        break;
 		default:
 			glow = cgs.media.blueSaberGlowShader;
 			blade = cgs.media.blueSaberCoreShader;
@@ -6151,7 +6181,21 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 		}
 		else if (client->team == TEAM_BLUE)
 		{
-			scolor = SABER_BLUE;
+
+                if (saberNum == 0)
+                {
+                        scolor = client->icolor1;
+                }
+                else
+                {
+                        scolor = client->icolor2;
+                }
+
+                        if (scolor == SABER_RED) {
+
+
+   	 			scolor = SABER_BLUE;
+                        }
 		}
 	}
 
@@ -6388,6 +6432,19 @@ CheckTrail:
 							break;
 						case SABER_PURPLE:
 							VectorSet( rgb1, 220.0f, 0.0f, 255.0f );
+							break;
+                                                // nettux saber colours (trails)
+						case SABER_TEAL:
+							VectorSet( rgb1, 0.0f, 80.0f, 60.0f );
+							break;
+						case SABER_CYAN:
+							VectorSet( rgb1, 0.0f, 80.0f, 80.0f );
+							break;
+						case SABER_INDIGO:
+							VectorSet( rgb1, 180.0f, 0.0f, 255.0f );
+							break;
+						case SABER_MAGENTA:
+							VectorSet( rgb1, 255.0f, 0.0f, 180.0f );
 							break;
 						default:
 							VectorSet( rgb1, 0.0f, 64.0f, 255.0f );

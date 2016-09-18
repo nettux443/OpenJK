@@ -612,12 +612,14 @@ qboolean G_PowerDuelCheckFail(gentity_t *ent)
 
 	G_PowerDuelCount(&loners, &doubles, qfalse);
 
-	if (ent->client->sess.duelTeam == DUELTEAM_LONE && loners >= 1)
+        // nettux increase both teams to 4
+        // nettux powerduel team player limit
+	if (ent->client->sess.duelTeam == DUELTEAM_LONE && loners >= 11)
 	{
 		return qtrue;
 	}
 
-	if (ent->client->sess.duelTeam == DUELTEAM_DOUBLE && doubles >= 2)
+	if (ent->client->sess.duelTeam == DUELTEAM_DOUBLE && doubles >= 11)
 	{
 		return qtrue;
 	}
@@ -831,7 +833,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 		team = TEAM_SPECTATOR;
 	}
 	else if ( (level.gametype == GT_POWERDUEL)
-		&& (level.numPlayingClients >= 3 || G_PowerDuelCheckFail(ent)) )
+                // nettux powerduel player limit
+		&& (level.numPlayingClients >= 12 || G_PowerDuelCheckFail(ent)) )
 	{
 		team = TEAM_SPECTATOR;
 	}

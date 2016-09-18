@@ -1141,6 +1141,15 @@ typedef struct cgMedia_s {
 	qhandle_t	blueSaberCoreShader;
 	qhandle_t	purpleSaberGlowShader;
 	qhandle_t	purpleSaberCoreShader;
+        // nettux saber colours
+	qhandle_t	tealSaberGlowShader;
+	qhandle_t	tealSaberCoreShader;
+	qhandle_t	cyanSaberGlowShader;
+	qhandle_t	cyanSaberCoreShader;
+	qhandle_t	indigoSaberGlowShader;
+	qhandle_t	indigoSaberCoreShader;
+	qhandle_t	magentaSaberGlowShader;
+	qhandle_t	magentaSaberCoreShader;
 	qhandle_t	saberBlurShader;
 	qhandle_t	swordTrailShader;
 

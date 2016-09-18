@@ -364,6 +364,10 @@ typedef enum
 	SABER_GREEN,
 	SABER_BLUE,
 	SABER_PURPLE,
+	SABER_TEAL, // nettux saber colours
+	SABER_CYAN,
+	SABER_INDIGO,
+	SABER_MAGENTA,
 	NUM_SABER_COLORS
 } saber_colors_t;
 

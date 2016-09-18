@@ -52,6 +52,15 @@ static qhandle_t blueSaberGlowShader;
 static qhandle_t blueSaberCoreShader;
 static qhandle_t purpleSaberGlowShader;
 static qhandle_t purpleSaberCoreShader;
+// nettux saber colours
+static qhandle_t tealSaberGlowShader;
+static qhandle_t tealSaberCoreShader;
+static qhandle_t cyanSaberGlowShader;
+static qhandle_t cyanSaberCoreShader;
+static qhandle_t indigoSaberGlowShader;
+static qhandle_t indigoSaberCoreShader;
+static qhandle_t magentaSaberGlowShader;
+static qhandle_t magentaSaberCoreShader;
 
 void UI_CacheSaberGlowGraphics( void )
 {//FIXME: these get fucked by vid_restarts
@@ -67,6 +76,15 @@ void UI_CacheSaberGlowGraphics( void )
 	blueSaberCoreShader			= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/blue_line" );
 	purpleSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/purple_glow" );
 	purpleSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/purple_line" );
+        // nettux saber colours
+	tealSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_glow" );
+	tealSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_line" );
+	cyanSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_glow" );
+	cyanSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_line" );
+	indigoSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_glow" );
+	indigoSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_line" );
+	magentaSaberGlowShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_glow" );
+	magentaSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/teal_line" );
 }
 
 qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel )
@@ -291,6 +309,27 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			blade = purpleSaberCoreShader;
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
+                // nettux saber colours (cores?)
+                case SABER_TEAL:
+			glow = tealSaberGlowShader;
+			blade = tealSaberCoreShader;
+                        VectorSet( rgb, 0.2f, 1.0f, 1.0f );
+                        break;
+                case SABER_CYAN:
+			glow = tealSaberGlowShader;
+			blade = tealSaberCoreShader;
+                        VectorSet( rgb, 0.2f, 1.0f, 1.0f );
+                        break;
+                case SABER_INDIGO:
+			glow = tealSaberGlowShader;
+			blade = tealSaberCoreShader;
+                        VectorSet( rgb, 0.7f, .2f, 1.0f );
+                        break;
+                case SABER_MAGENTA:
+			glow = tealSaberGlowShader;
+			blade = tealSaberCoreShader;
+                        VectorSet( rgb, 1.0f, .2f, 0.7f );
+                        break;
 		default:
 			break;
 	}
