@@ -1,33 +1,26 @@
-# OpenJK
+# Star Wars Jedi Knight: Jedi Academy - nettux433's mod
 
-OpenJK is an effort by the JACoders group to maintain and improve the game engines on which the Jedi Academy (JA) and Jedi Outcast (JO) games run on, while maintaining *full backwards compatibility* with the existing games. *This project does not attempt to rebalance or otherwise modify core gameplay*.
+## Install
 
-Our aims are to:
-* Improve the stability of the engine by fixing bugs and improving performance.
-* Provide a clean base from which new JO and JA code modifications can be made.
-* Make available this engine to more operating systems. To date, we have ports on Linux and OS X.
+Download the latest release and extract the contents of this zip into your GameData/ folder
 
-Currently, the most stable portion of this project is the Jedi Academy multiplayer code, with the single player code in a reasonable state.
+## Changes
 
-Rough support for Jedi Outcast single player is also available, however this should be considered heavily work in progress. This is not currently actively worked on or tested. OpenJK does not have Jedi Outcast multiplayer support.
-
-Please use discretion when making issue requests on GitHub. The [JKHub sub-forum](http://jkhub.org/forum/51-discussion/) is a better place for support queries, discussions, and feature requests.
-
-[![IRC](https://img.shields.io/badge/irc-%23JACoders-brightgreen.svg)](http://unic0rn.github.io/tiramisu/jacoders/)
-[![Forum](https://img.shields.io/badge/forum-JKHub.org%20OpenJK-brightgreen.svg)](http://jkhub.org/forum/51-discussion/)
-
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/1153/badge.svg)](https://scan.coverity.com/projects/1153)
-
-| Windows | OSX | Linux x86 | Linux x64 |
-|---------|-----|-----------|-----------|
-| [![Windows Build Status](http://jk.xd.cm/badge.svg?builder=windows)](http://jk.xd.cm/builders/windows) | [ ![OSX Build Status](http://jk.xd.cm/badge.svg?builder=osx)](http://jk.xd.cm/builders/osx) | [ ![Linux x86 Build Status](http://jk.xd.cm/badge.svg?builder=linux)](http://jk.xd.cm/builders/linux) | [ ![Linux x64 Build Status](http://jk.xd.cm/badge.svg?builder=linux-64)](http://jk.xd.cm/builders/linux-64) |
-
-## License
-
-[![License](https://img.shields.io/github/license/JACoders/OpenJK.svg)](https://github.com/JACoders/OpenJK/blob/master/LICENSE.txt)
-
-OpenJK is licensed under GPLv2 as free software. You are free to use, modify and redistribute OpenJK following the terms in LICENSE.txt.
-
+ * Team FFA saber colours for blue team may now be anything but red
+    (instead of only blue)
+ * Power Duel is now a duel between 2 teams totaling up to 12 players
+   - Change g_nettuxPowerDuelBotTeam to choose bot team assignment behaviour
+      (0 => balance, 1 => lone, 2 => double)
+   - All players on both teams should always start with 100hp
+   - Player wins are given if you're team wins AND you survive the round
+   - Player losses are given if you die AND your team loses
+ * Add Regen option
+  - g_nettuxRegen set to 1 will enable regeneration, 0 will disable it
+  - g_nettuxRegenTimer is the number of seconds that must pass without
+    taking damage before regeneration begins
+  - g_nettuxRegenInterval is how many seconds between player health increments
+  - g_nettuxRegenAmount is how much regeneration increments player health by
+  
 ## For players
 
 To install OpenJK, you will first need Jedi Academy installed. If you don't already own the game you can buy it from online stores such as [Steam](http://store.steampowered.com/app/6020/), [Amazon](http://www.amazon.com/Star-Wars-Jedi-Knight-Academy-Pc/dp/B0000A2MCN) or [GOG](https://www.gog.com/game/star_wars_jedi_knight_jedi_academy).
