@@ -1224,6 +1224,7 @@ void ClientRespawn( gentity_t *ent ) {
 
 	if (gEscaping || level.gametype == GT_POWERDUEL)
 	{
+
 		ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 		ent->client->sess.spectatorState = SPECTATOR_FREE;
 		ent->client->sess.spectatorClient = 0;

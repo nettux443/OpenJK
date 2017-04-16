@@ -2938,7 +2938,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				{ //still an active living paired duelist so it's not over yet.
 					heLives = qtrue;
 					break;
-				}
+                                }
 			}
 
 			if (!heLives)
@@ -2946,8 +2946,36 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				G_AddPowerDuelScore(DUELTEAM_LONE, 1);
 				G_AddPowerDuelLoserScore(DUELTEAM_DOUBLE, 1);
 				g_endPDuel = qtrue;
-			}
+                        }
 		}
+
+
+
+                if (!g_endPDuel) {
+
+                        // nettux if duel not ending then fix spectators watching dead player to free
+
+                        for ( i=0; i<MAX_CLIENTS; i++ )
+                        {
+			        gentity_t *check;
+                                check = &g_entities[i];
+                                // nettux find clients spectating this player
+                                if (check->inuse && check->client && self->s.number == check->client->sess.spectatorClient &&
+                                        check->client->pers.connected == CON_CONNECTED &&
+                                        check->client->sess.sessionTeam == TEAM_SPECTATOR)
+                                {
+                                        // nettux should sort it
+					ClientRespawn(check);
+                                }
+                        }
+
+
+
+
+
+
+                }
+
 	}
 }
 

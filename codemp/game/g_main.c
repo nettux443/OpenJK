@@ -715,27 +715,6 @@ void AddPowerDuelPlayers( void )
 		return;
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	//Could be written faster, but it's not enough to care I suppose.
 	G_PowerDuelCount(&loners, &doubles, qtrue);
 
