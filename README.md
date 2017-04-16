@@ -21,6 +21,8 @@ Download the latest release and extract the contents of this zip into your GameD
    - g_nettuxRegenInterval is how many seconds between player health increments
    - g_nettuxRegenAmount is how much regeneration increments player health by
   
+---
+  
 ## For players
 
 To install OpenJK, you will first need Jedi Academy installed. If you don't already own the game you can buy it from online stores such as [Steam](http://store.steampowered.com/app/6020/), [Amazon](http://www.amazon.com/Star-Wars-Jedi-Knight-Academy-Pc/dp/B0000A2MCN) or [GOG](https://www.gog.com/game/star_wars_jedi_knight_jedi_academy).
