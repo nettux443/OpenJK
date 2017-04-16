@@ -15,11 +15,11 @@ Download the latest release and extract the contents of this zip into your GameD
    - Player wins are given if you're team wins AND you survive the round
    - Player losses are given if you die AND your team loses
  * Add Regen option
-  - g_nettuxRegen set to 1 will enable regeneration, 0 will disable it
-  - g_nettuxRegenTimer is the number of seconds that must pass without
-    taking damage before regeneration begins
-  - g_nettuxRegenInterval is how many seconds between player health increments
-  - g_nettuxRegenAmount is how much regeneration increments player health by
+   - g_nettuxRegen set to 1 will enable regeneration, 0 will disable it
+   - g_nettuxRegenTimer is the number of seconds that must pass without
+     taking damage before regeneration begins
+   - g_nettuxRegenInterval is how many seconds between player health increments
+   - g_nettuxRegenAmount is how much regeneration increments player health by
   
 ## For players
 
