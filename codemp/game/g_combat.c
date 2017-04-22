@@ -2038,9 +2038,10 @@ void G_AddPowerDuelScore(int team, int score)
 	{
 		check = &g_entities[i];
 		if (check->inuse && check->client &&
-			check->client->pers.connected == CON_CONNECTED && !check->client->iAmALoser &&
-                        // nettux if the team wins then you get a point, even if you died before the end of the round
-			/**check->client->ps.stats[STAT_HEALTH] > 0 &&
+			check->client->pers.connected == CON_CONNECTED && 
+			// nettux if the team wins then you get a point, even if you died before the end of the round
+			/**!check->client->iAmALoser &&
+			check->client->ps.stats[STAT_HEALTH] > 0 &&
 			check->client->sess.sessionTeam != TEAM_SPECTATOR &&**/
 			check->client->sess.duelTeam == team)
 		{ //found a living client on the specified team
